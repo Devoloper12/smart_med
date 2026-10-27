@@ -4,8 +4,9 @@
   "description": "Frontend for Smart Medicine Reminder & Health Assistant System (Vercel Ready)",
   "scripts": {
     "dev": "serve -p 3000 .",
-    "start": "serve -p 3000 .",
-    "build": "echo 'Static site ready for Vercel'"
+    "start": "serve -p 3000 dist",
+    "build": "node build.js",
+    "preview": "serve -p 3000 dist"
   },
   "keywords": [
     "medicine-reminder",

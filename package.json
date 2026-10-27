@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Smart Medicine Reminder & Health Assistant System (Vercel & Render Ready)",
   "scripts": {
+    "build": "npm run build --prefix frontend",
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
     "start:frontend": "npm start --prefix frontend",

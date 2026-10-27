@@ -54,10 +54,10 @@ Verify it is running by opening:
 
 ### Step 2: Configure Project Settings
 In the Vercel project configuration window:
-- **Root Directory**: Click `Edit` and select **`frontend`** *(Crucial!)*
-- **Framework Preset**: `Other` (Static HTML)
-- **Build Command**: Leave empty / default
-- **Output Directory**: Leave empty / default
+- **Root Directory**: Select **`frontend`** (or leave root — both are supported)
+- **Framework Preset**: `Other`
+- **Build Command**: `npm run build` (automatic via `vercel.json`)
+- **Output Directory**: `dist` (automatic via `vercel.json`)
 
 ### Step 3: Set Backend URL in Frontend
 There are two easy ways:
