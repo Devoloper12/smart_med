@@ -7,19 +7,22 @@ const CONFIG = {
   LOCAL_API: 'http://localhost:5000/api',
 
   get API_BASE_URL() {
+    let url = this.DEFAULT_RENDER_API;
+
     // 1. Check if user configured a custom backend in settings
     const stored = localStorage.getItem('CUSTOM_API_URL');
     if (stored && stored.trim()) {
-      return stored.trim().replace(/\/+$/, '');
+      url = stored.trim();
+    } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      url = this.LOCAL_API;
     }
 
-    // 2. If running locally (localhost or 127.0.0.1)
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return this.LOCAL_API;
+    // Ensure URL has no trailing slashes and always includes /api
+    url = url.replace(/\/+$/, '');
+    if (!url.endsWith('/api')) {
+      url = `${url}/api`;
     }
-
-    // 3. In production on Vercel
-    return this.DEFAULT_RENDER_API;
+    return url;
   },
 
   setCustomBackendUrl(url) {

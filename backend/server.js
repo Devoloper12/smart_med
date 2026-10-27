@@ -64,14 +64,27 @@ app.get('/', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes (Support both /api/* and root /*)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/patients', patientRoutes);
+app.use('/patients', patientRoutes);
+
 app.use('/api/medicines', medicineRoutes);
+app.use('/medicines', medicineRoutes);
+
 app.use('/api/reminders', reminderRoutes);
+app.use('/reminders', reminderRoutes);
+
 app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/prescriptions', prescriptionRoutes);
+
 app.use('/api/caregivers', caregiverRoutes);
+app.use('/caregivers', caregiverRoutes);
+
 app.use('/api/emergency', emergencyRoutes);
+app.use('/emergency', emergencyRoutes);
 
 // Error Handling
 app.use(notFoundHandler);
