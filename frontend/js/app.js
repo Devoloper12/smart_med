@@ -203,14 +203,34 @@ async function checkBackendHealth() {
       throw new Error();
     }
   } catch (e) {
-    statusEl.className = 'badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1';
-    statusEl.innerHTML = '<i class="fa-solid fa-circle-nodes me-1 text-warning"></i> Connecting API...';
+    statusEl.className = 'badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1 cursor-pointer';
+    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i> API Offline (Click to configure)';
   }
+}
+
+function saveCustomApiUrl() {
+  const inputEl = document.getElementById('custom-api-input');
+  if (!inputEl) return;
+  const val = inputEl.value.trim();
+  CONFIG.setCustomBackendUrl(val);
+  showToast('Backend URL updated!', 'success');
+  setTimeout(() => location.reload(), 600);
+}
+window.saveCustomApiUrl = saveCustomApiUrl;
+
+function initApiSettings() {
+  const activeEl = document.getElementById('active-api-url');
+  const activePillText = document.getElementById('active-api-pill-text');
+  const inputEl = document.getElementById('custom-api-input');
+  if (activeEl) activeEl.innerText = API.baseURL;
+  if (activePillText) activePillText.innerText = API.baseURL;
+  if (inputEl) inputEl.value = localStorage.getItem('CUSTOM_API_URL') || '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   requireAuth();
   updateNavbarAuth();
+  initApiSettings();
   checkBackendHealth();
 });

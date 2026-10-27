@@ -80,6 +80,9 @@ const API = {
 
       return data;
     } catch (err) {
+      if (err.name === 'TypeError' && (err.message.includes('fetch') || err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('Load failed'))) {
+        throw new Error(`Cannot connect to backend server (${this.baseURL}). Check if backend is deployed or update API Config.`);
+      }
       throw err;
     }
   },

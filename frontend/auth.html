@@ -20,6 +20,9 @@
         <span>Smart<span class="text-secondary">Med</span></span>
       </a>
       <div class="d-flex align-items-center gap-2">
+        <span id="backend-status-pill" class="badge bg-secondary bg-opacity-10 text-secondary border rounded-pill px-3 py-1 cursor-pointer" title="Click to view API endpoint" data-bs-toggle="modal" data-bs-target="#apiSettingsModal">
+          <i class="fa-solid fa-cloud-arrow-up me-1"></i> API Config
+        </span>
         <button class="btn btn-outline-secondary btn-sm rounded-circle p-2" id="dark-mode-toggle">
           <i class="fa-solid fa-moon"></i>
         </button>
@@ -34,6 +37,14 @@
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6 col-xl-5">
         <div class="health-card p-4 p-sm-5">
+
+          <!-- Connected API Indicator -->
+          <div class="text-center mb-3">
+            <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 cursor-pointer" title="Click to change backend endpoint" data-bs-toggle="modal" data-bs-target="#apiSettingsModal">
+              <i class="fa-solid fa-server me-1 text-primary"></i> API: <span id="active-api-pill-text" class="text-primary fw-medium font-monospace small"></span>
+              <span class="text-decoration-underline ms-1 text-muted">(Change)</span>
+            </span>
+          </div>
 
           <!-- Interactive Tab Switcher -->
           <div class="d-flex p-1 bg-light rounded-pill border mb-4">
@@ -195,6 +206,30 @@
 
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
+
+  <!-- Backend API Settings Modal -->
+  <div class="modal fade" id="apiSettingsModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-server me-2 text-primary"></i>Backend API URL</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted">When deployed on Vercel, paste your live Render backend URL here (e.g. <code>https://your-app.onrender.com/api</code>):</p>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Backend API Base URL</label>
+            <input type="url" class="form-control" id="custom-api-input" placeholder="https://your-service.onrender.com/api">
+          </div>
+          <div class="small text-muted mb-2">Current Active URL: <code id="active-api-url" class="text-primary"></code></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" onclick="CONFIG.setCustomBackendUrl(''); location.reload();">Reset Default</button>
+          <button type="button" class="btn btn-primary btn-sm rounded-pill" onclick="saveCustomApiUrl()">Save & Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/config.js"></script>
