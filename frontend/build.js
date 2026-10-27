@@ -40,4 +40,18 @@ for (const entry of rootEntries) {
   }
 }
 
+// Support optional Vercel environment variable injection
+const envApiUrl = process.env.RENDER_API_URL || process.env.API_URL;
+if (envApiUrl) {
+  const distConfigPath = path.join(distDir, 'js', 'config.js');
+  if (fs.existsSync(distConfigPath)) {
+    let configContent = fs.readFileSync(distConfigPath, 'utf8');
+    const cleanUrl = envApiUrl.trim().replace(/\/+$/, '');
+    const finalUrl = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+    configContent = configContent.replace(/DEFAULT_RENDER_API:\s*['"`][^'"`]+['"`]/, `DEFAULT_RENDER_API: '${finalUrl}'`);
+    fs.writeFileSync(distConfigPath, configContent, 'utf8');
+    console.log(`Injected RENDER_API_URL: ${finalUrl} into config.js`);
+  }
+}
+
 console.log('Build completed successfully. Output directory "dist" is ready for Vercel deployment.');

@@ -2,9 +2,8 @@
  * Frontend Configuration for Vercel & Render Deployment
  */
 const CONFIG = {
-  // Set your default Render backend URL here:
-  // e.g., 'https://smart-medicine-backend.onrender.com/api'
-  DEFAULT_RENDER_API: 'https://smart-medicine-backend.onrender.com/api',
+  // Live Render backend URL:
+  DEFAULT_RENDER_API: 'https://smart-med-rd7w.onrender.com/api',
   LOCAL_API: 'http://localhost:5000/api',
 
   get API_BASE_URL() {
