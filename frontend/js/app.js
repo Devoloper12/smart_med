@@ -188,49 +188,8 @@ function handleLogout(e) {
   setTimeout(() => { window.location.href = 'index.html'; }, 500);
 }
 
-// Check Backend Health
-async function checkBackendHealth() {
-  const statusEl = document.getElementById('backend-status-pill');
-  if (!statusEl) return;
-
-  try {
-    const healthUrl = API.baseURL.replace(/\/api\/?$/, '') + '/api/health';
-    const res = await fetch(healthUrl, { method: 'GET', cache: 'no-cache' });
-    if (res.ok) {
-      statusEl.className = 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1';
-      statusEl.innerHTML = '<i class="fa-solid fa-circle-dot me-1 text-success"></i> Render API Online';
-    } else {
-      throw new Error();
-    }
-  } catch (e) {
-    statusEl.className = 'badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1 cursor-pointer';
-    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i> API Offline (Click to configure)';
-  }
-}
-
-function saveCustomApiUrl() {
-  const inputEl = document.getElementById('custom-api-input');
-  if (!inputEl) return;
-  const val = inputEl.value.trim();
-  CONFIG.setCustomBackendUrl(val);
-  showToast('Backend URL updated!', 'success');
-  setTimeout(() => location.reload(), 600);
-}
-window.saveCustomApiUrl = saveCustomApiUrl;
-
-function initApiSettings() {
-  const activeEl = document.getElementById('active-api-url');
-  const activePillText = document.getElementById('active-api-pill-text');
-  const inputEl = document.getElementById('custom-api-input');
-  if (activeEl) activeEl.innerText = API.baseURL;
-  if (activePillText) activePillText.innerText = API.baseURL;
-  if (inputEl) inputEl.value = localStorage.getItem('CUSTOM_API_URL') || '';
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   requireAuth();
   updateNavbarAuth();
-  initApiSettings();
-  checkBackendHealth();
 });
