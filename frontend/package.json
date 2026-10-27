@@ -1,0 +1,21 @@
+{
+  "name": "smart-medicine-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Smart Medicine Reminder & Health Assistant System (Vercel Ready)",
+  "scripts": {
+    "dev": "serve -p 3000 .",
+    "start": "serve -p 3000 .",
+    "build": "echo 'Static site ready for Vercel'"
+  },
+  "keywords": [
+    "medicine-reminder",
+    "healthcare",
+    "vercel",
+    "bootstrap"
+  ],
+  "author": "Smart Health Tech",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

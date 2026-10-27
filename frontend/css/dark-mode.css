@@ -1,0 +1,62 @@
+/* Dark Mode Stylesheet */
+body.dark-mode {
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-light: rgba(56, 189, 248, 0.15);
+  --secondary: #2dd4bf;
+  --secondary-hover: #14b8a6;
+  --bg-main: #0b1120;
+  --bg-card: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+body.dark-mode .navbar-custom {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom-color: var(--border-color);
+}
+
+body.dark-mode .hero-section {
+  background: linear-gradient(135deg, #091e2b 0%, #0f172a 50%, #161a29 100%);
+  border-bottom-color: var(--border-color);
+}
+
+body.dark-mode .hero-title { color: #f8fafc; }
+body.dark-mode .hero-subtitle { color: #cbd5e1; }
+
+body.dark-mode .health-card,
+body.dark-mode .metric-card,
+body.dark-mode .feature-card,
+body.dark-mode .medicine-card-item,
+body.dark-mode .prescription-card,
+body.dark-mode .modal-content {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main);
+}
+
+body.dark-mode .prescription-icon-header {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+body.dark-mode .upload-dropzone {
+  background-color: #0f172a;
+  border-color: #38bdf8;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #0f172a;
+  border-color: var(--border-color);
+  color: #f8fafc;
+}
+
+body.dark-mode .custom-toast {
+  background: #1e293b;
+  color: #f8fafc;
+}

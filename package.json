@@ -1,0 +1,20 @@
+{
+  "name": "smart-medicine-reminder-system",
+  "version": "1.0.0",
+  "description": "Smart Medicine Reminder & Health Assistant System (Vercel & Render Ready)",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "start:frontend": "npm start --prefix frontend",
+    "start:backend": "npm start --prefix backend"
+  },
+  "keywords": [
+    "medicine-reminder",
+    "healthcare",
+    "vercel",
+    "render",
+    "mongodb-atlas"
+  ],
+  "author": "Smart Health Tech",
+  "license": "MIT"
+}
