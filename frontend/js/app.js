@@ -132,14 +132,14 @@ function updateNavbarAuth() {
 
   if (token && user) {
     authNavContainer.innerHTML = `
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2 gap-sm-3 flex-wrap">
         <a href="emergency.html" class="btn btn-sos-compact text-white">
           <i class="fa-solid fa-truck-medical"></i> SOS
         </a>
         <div class="dropdown">
-          <button class="btn btn-outline-primary btn-sm dropdown-toggle rounded-pill px-3 py-1 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-outline-primary btn-sm dropdown-toggle rounded-pill px-2 px-sm-3 py-1 d-flex align-items-center gap-1 gap-sm-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fa-solid fa-circle-user text-primary"></i>
-            <span class="fw-medium">${user.name || 'Account'}</span>
+            <span class="fw-medium text-truncate" style="max-width: 110px;">${user.name || 'Account'}</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow border-0">
             <li><h6 class="dropdown-header">Signed in as <strong>${user.email}</strong></h6></li>
@@ -159,7 +159,7 @@ function updateNavbarAuth() {
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
   } else {
     authNavContainer.innerHTML = `
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
         <a href="auth.html?mode=login" class="btn btn-outline-primary btn-sm px-3 rounded-pill">Login</a>
         <a href="auth.html?mode=register" class="btn btn-primary-health btn-sm px-3 rounded-pill">Get Started</a>
       </div>

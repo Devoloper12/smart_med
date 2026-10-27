@@ -47,7 +47,7 @@
   <main class="container py-4">
 
     <!-- Top Greeting Banner -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom gap-3 action-header-bar">
       <div>
         <h2 class="fw-bold mb-1">Hello, <span id="user-greeting" class="text-primary">Patient</span> 👋</h2>
         <div class="text-muted small">
@@ -56,7 +56,7 @@
         </div>
       </div>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
         <button id="dashboard-sos-btn" class="btn btn-sos-compact text-white">
           <i class="fa-solid fa-truck-medical"></i> EMERGENCY SOS
         </button>
@@ -131,7 +131,7 @@
       <!-- Today's Medicine Checklist (Left Column) -->
       <div class="col-lg-7">
         <div class="health-card h-100">
-          <div class="health-card-header">
+          <div class="health-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
               <h5 class="fw-bold mb-0">Today's Medicine Schedule</h5>
               <div class="small text-muted">Confirm doses as taken or alert caregivers</div>
@@ -154,7 +154,7 @@
 
         <!-- Weekly Adherence Chart -->
         <div class="health-card mb-4">
-          <div class="health-card-header">
+          <div class="health-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h6 class="fw-bold mb-0"><i class="fa-solid fa-chart-column me-2 text-success"></i>Weekly Adherence</h6>
             <span class="small text-muted">Last 7 Days</span>
           </div>
@@ -165,7 +165,7 @@
 
         <!-- Upcoming Reminders List -->
         <div class="health-card">
-          <div class="health-card-header">
+          <div class="health-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h6 class="fw-bold mb-0"><i class="fa-regular fa-clock me-2 text-primary"></i>Upcoming Queue</h6>
             <a href="reminders.html" class="small text-decoration-none">Manage</a>
           </div>

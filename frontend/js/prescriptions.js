@@ -59,7 +59,7 @@ function renderPrescriptions(prescriptions) {
     const fullDownloadUrl = rx.fileUrl.startsWith('http') ? rx.fileUrl : `${API.baseURL.replace(/\/api\/?$/, '')}${rx.fileUrl}`;
 
     return `
-      <div class="col-md-6 col-lg-4 mb-4">
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
         <div class="prescription-card h-100 d-flex flex-column">
           <div class="prescription-icon-header">
             <i class="fa-solid fa-file-pdf text-danger"></i>
@@ -69,7 +69,7 @@ function renderPrescriptions(prescriptions) {
             <div class="small text-primary fw-medium mb-2"><i class="fa-solid fa-user-doctor me-1"></i>${rx.doctorName}</div>
             <div class="small text-muted"><i class="fa-regular fa-calendar me-1"></i>${rxDate}</div>
           </div>
-          <div class="p-3 border-top bg-light bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div class="p-3 border-top bg-light bg-opacity-25 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <a href="${fullDownloadUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
               <i class="fa-regular fa-eye me-1"></i> View / Download
             </a>

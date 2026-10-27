@@ -46,7 +46,7 @@
   <main class="container py-4">
 
     <!-- Header & Action Bar -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom gap-3 action-header-bar">
       <div>
         <h2 class="fw-bold mb-1">Medication Reminders</h2>
         <div class="text-muted small">
@@ -55,7 +55,7 @@
         </div>
       </div>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100 w-md-auto">
         <button id="test-chime-btn" class="btn btn-outline-secondary btn-sm rounded-pill px-3" title="Test synthesizer audio bell">
           <i class="fa-solid fa-volume-high me-1 text-primary"></i> Test Audio Chime
         </button>
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Filter Pills -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
+    <div class="filter-pills-scroll gap-2 mb-4">
       <button class="btn btn-sm btn-outline-primary rounded-pill px-3 active" data-reminder-filter="today">Today's Doses</button>
       <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-reminder-filter="upcoming">Upcoming Queue</button>
       <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-reminder-filter="history">History Log</button>

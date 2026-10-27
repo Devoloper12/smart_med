@@ -23,6 +23,10 @@
   --transition: all 0.25s ease-in-out;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-main);
@@ -31,6 +35,13 @@ body {
   display: flex;
   flex-direction: column;
   transition: var(--transition);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+img, svg, canvas {
+  max-width: 100%;
+  height: auto;
 }
 
 main { flex: 1; }
@@ -116,6 +127,17 @@ main { flex: 1; }
   font-weight: 800;
   line-height: 1.1;
   margin-top: 0.5rem;
+}
+
+.metric-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .feature-card {
@@ -311,3 +333,287 @@ footer {
 
 footer a { color: #cbd5e1; text-decoration: none; }
 footer a:hover { color: white; }
+
+/* ==========================================================================
+   Comprehensive Responsive System (Phones, Tablets, Laptops, Desktops)
+   ========================================================================== */
+
+/* Touch-action and tap targets */
+button, .btn, input, select, textarea, .nav-link {
+  touch-action: manipulation;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+/* 1. Mobile Navigation Drawer (< 992px) */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+  }
+  .navbar-nav .nav-link {
+    padding: 0.65rem 1rem !important;
+    margin-bottom: 0.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+  }
+  .navbar-collapse .d-flex {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .dropdown-menu {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+/* 2. Mobile Phones (Portrait & Landscape: max-width: 575.98px) */
+@media (max-width: 575.98px) {
+  /* Prevent iOS zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 2.75rem 0 2rem;
+  }
+  .hero-title {
+    font-size: 1.85rem;
+    line-height: 1.25;
+  }
+  .hero-subtitle {
+    font-size: 0.98rem;
+    margin-top: 0.75rem;
+    line-height: 1.5;
+  }
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    padding: 0.85rem;
+  }
+  .metric-number {
+    font-size: 1.55rem;
+    margin-top: 0.35rem;
+  }
+  .metric-card .text-muted.small {
+    font-size: 0.75rem !important;
+  }
+  .metric-icon-box {
+    width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
+  }
+
+  /* Medicine card item inside schedule */
+  .medicine-card-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 0.85rem;
+  }
+  .medicine-card-item > div:first-child {
+    width: 100%;
+  }
+  .medicine-card-item > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.65rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Header & Action Bars on Mobile */
+  .action-header-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+  .action-header-bar > * {
+    width: 100%;
+  }
+  .action-header-bar .btn,
+  .action-header-bar a.btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Filter Pills in Reminders */
+  .filter-pills-scroll {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-pills-scroll .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Emergency SOS Button */
+  .btn-sos {
+    width: 115px;
+    height: 115px;
+    font-size: 0.9rem;
+    border-width: 3px;
+  }
+  .btn-sos i.fs-1 {
+    font-size: 1.8rem !important;
+  }
+
+  /* Toast Notification on Mobile */
+  #toast-container {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    max-width: calc(100% - 24px);
+  }
+  .custom-toast {
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+
+  /* Health Cards */
+  .health-card {
+    border-radius: var(--radius-sm);
+  }
+  .health-card-header {
+    padding: 0.85rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .health-card-body {
+    padding: 1rem;
+  }
+
+  /* Modals on Mobile */
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  .modal-content {
+    border-radius: var(--radius-sm);
+  }
+  .modal-body {
+    padding: 1rem;
+  }
+  .modal-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  /* Dropzone */
+  .upload-dropzone {
+    padding: 1.75rem 1rem;
+  }
+
+  /* Footer */
+  footer {
+    padding: 2rem 0 1.25rem;
+    text-align: center;
+  }
+}
+
+/* 3. Small Tablets (576px to 767.98px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .hero-section {
+    padding: 3.5rem 0 3rem;
+  }
+  .hero-title {
+    font-size: 2.35rem;
+  }
+  .metric-card {
+    padding: 1.15rem;
+  }
+  .metric-number {
+    font-size: 1.85rem;
+  }
+  .health-card-header {
+    padding: 1rem 1.25rem;
+  }
+  .health-card-body {
+    padding: 1.25rem;
+  }
+}
+
+/* 4. Medium Tablets & Small Laptops (768px to 991.98px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .hero-section {
+    padding: 4rem 0 3.5rem;
+  }
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  .metric-card {
+    padding: 1.25rem;
+  }
+  .metric-number {
+    font-size: 2rem;
+  }
+}
+
+/* 5. Laptops (992px to 1199.98px) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .hero-title {
+    font-size: 2.85rem;
+  }
+  .metric-card {
+    padding: 1.35rem;
+  }
+}
+
+/* 6. Desktops & Ultra-Wide (>= 1200px) */
+@media (min-width: 1200px) {
+  .hero-title {
+    font-size: 3.25rem;
+  }
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
+  .container {
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+}
+
+/* Smooth horizontal scrollbar styling for touch */
+.filter-pills-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.filter-pills-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.filter-pills-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}

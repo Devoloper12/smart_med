@@ -43,9 +43,9 @@ function renderCaregivers(caregivers) {
   }
 
   container.innerHTML = caregivers.map(cg => `
-    <div class="col-md-6 col-lg-4 mb-4">
+    <div class="col-12 col-md-6 col-lg-4 mb-4">
       <div class="health-card h-100 d-flex flex-column ${cg.isPrimary ? 'border-primary' : ''}">
-        <div class="health-card-header">
+        <div class="health-card-header d-flex justify-content-between align-items-start gap-2">
           <div>
             <h6 class="fw-bold mb-0">${cg.name}</h6>
             <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill small">${cg.relationship}</span>
@@ -57,11 +57,11 @@ function renderCaregivers(caregivers) {
         <div class="health-card-body flex-grow-1">
           <div class="d-flex align-items-center gap-2 mb-2">
             <i class="fa-solid fa-phone text-primary small"></i>
-            <a href="tel:${cg.phone}" class="text-decoration-none text-dark fw-medium small">${cg.phone}</a>
+            <a href="tel:${cg.phone}" class="text-decoration-none text-dark fw-medium small text-break">${cg.phone}</a>
           </div>
-          ${cg.email ? `<div class="small text-muted mb-3"><i class="fa-regular fa-envelope me-1"></i>${cg.email}</div>` : ''}
+          ${cg.email ? `<div class="small text-muted mb-3 text-break"><i class="fa-regular fa-envelope me-1"></i>${cg.email}</div>` : ''}
         </div>
-        <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-between align-items-center">
+        <div class="card-footer bg-transparent border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
           <button class="btn btn-sm btn-outline-warning rounded-pill" onclick="sendTestAlert('${cg._id}', '${cg.name}')">
             <i class="fa-solid fa-paper-plane me-1"></i> Test Alert
           </button>

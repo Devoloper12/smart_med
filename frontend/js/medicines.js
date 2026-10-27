@@ -64,12 +64,12 @@ function renderMedicines(medicines) {
     const statusColor = med.status === 'Active' ? 'success' : 'secondary';
 
     return `
-      <div class="col-md-6 col-lg-4 mb-4">
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
         <div class="health-card h-100 d-flex flex-column">
-          <div class="health-card-header">
+          <div class="health-card-header d-flex justify-content-between align-items-start gap-2">
             <div>
               <span class="badge bg-${statusColor} bg-opacity-10 text-${statusColor} rounded-pill px-2 py-1 mb-1 small">${med.status}</span>
-              <h5 class="fw-bold mb-0 text-truncate" style="max-width: 220px;">${med.medicineName}</h5>
+              <h5 class="fw-bold mb-0 text-break">${med.medicineName}</h5>
             </div>
             <div class="dropdown">
               <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown">

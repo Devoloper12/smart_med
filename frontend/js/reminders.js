@@ -83,11 +83,11 @@ function renderReminders(reminders) {
     return `
       <div class="health-card p-3 mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <div class="d-flex align-items-center gap-3">
-          <div class="rounded-3 p-3 bg-primary bg-opacity-10 text-primary" style="width: 48px; height: 48px; display:flex; align-items:center; justify-content:center;">
+          <div class="rounded-3 p-2 bg-primary bg-opacity-10 text-primary flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
             <i class="fa-solid fa-bell fs-5"></i>
           </div>
           <div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
               <span class="fw-bold fs-6">${med.medicineName || 'Medicine'}</span>
               <span class="badge bg-light text-dark border small">${med.dosage || 'Dose'}</span>
               <span class="badge-status ${r.status}">${r.status}</span>
@@ -99,7 +99,7 @@ function renderReminders(reminders) {
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
           ${isPending ? `
             <button class="btn btn-sm btn-success rounded-pill px-3" onclick="handleMarkTaken('${r._id}')">
               <i class="fa-solid fa-check me-1"></i> Taken

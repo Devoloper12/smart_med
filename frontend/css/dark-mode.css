@@ -60,3 +60,12 @@ body.dark-mode .custom-toast {
   background: #1e293b;
   color: #f8fafc;
 }
+
+body.dark-mode .navbar-collapse {
+  background: #1e293b !important;
+  border-color: var(--border-color) !important;
+}
+
+body.dark-mode .filter-pills-scroll::-webkit-scrollbar-thumb {
+  background: #334155;
+}

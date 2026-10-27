@@ -67,7 +67,7 @@ function renderTodaySchedule(medicines) {
     return `
       <div class="medicine-card-item">
         <div class="d-flex align-items-center gap-3">
-          <div class="rounded-circle p-3 d-flex align-items-center justify-content-center ${isTaken ? 'bg-success bg-opacity-10 text-success' : isMissed ? 'bg-danger bg-opacity-10 text-danger' : 'bg-primary bg-opacity-10 text-primary'}" style="width: 48px; height: 48px;">
+          <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0 ${isTaken ? 'bg-success bg-opacity-10 text-success' : isMissed ? 'bg-danger bg-opacity-10 text-danger' : 'bg-primary bg-opacity-10 text-primary'}" style="width: 44px; height: 44px;">
             <i class="fa-solid ${isTaken ? 'fa-check' : isMissed ? 'fa-xmark' : 'fa-pills'} fs-5"></i>
           </div>
           <div>
@@ -80,7 +80,7 @@ function renderTodaySchedule(medicines) {
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
           <span class="badge-status ${item.status}">${item.status}</span>
           ${item.status === 'pending' || item.status === 'snoozed' ? `
             <button class="btn btn-sm btn-success rounded-pill px-3" onclick="markTaken('${item._id}')" title="Mark Taken">
