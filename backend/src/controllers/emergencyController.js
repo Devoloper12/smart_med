@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const EmergencyAlertModel = require('../models/EmergencyAlert');
+const CaregiverModel = require('../models/Caregiver');
 const { EmergencyAlert: EmergencyAlertDomain } = require('../classes/NotificationDomain');
 const fallbackStore = require('../utils/fallbackStore');
 const { resolvePatientId } = require('./patientController');
@@ -18,6 +19,35 @@ const triggerSOS = async (req, res, next) => {
       address: address || 'Current Registered Location'
     };
 
+    // Find all registered caregivers for this patient
+    let caregivers = [];
+    if (isDBConnected()) {
+      caregivers = await CaregiverModel.find({ patientId });
+    } else {
+      caregivers = fallbackStore.caregivers.filter(c => String(c.patientId) === String(patientId));
+    }
+
+    const alertMessage = `🚨 EMERGENCY SOS ALERT! Patient ${patientName} requires immediate medical assistance!\n📍 Location: ${locationData.address}\n📝 Notes: ${notes || 'Immediate help needed'}\n⏰ Time: ${new Date().toLocaleTimeString()}`;
+
+    // Generate direct WhatsApp and SMS dispatch URLs for each caregiver
+    const dispatchedCaregivers = caregivers.map(cg => {
+      const cleanPhone = (cg.phone || '').replace(/[^\d+]/g, '');
+      const waNumber = cleanPhone.replace('+', '');
+      const encodedMsg = encodeURIComponent(alertMessage);
+
+      return {
+        caregiverId: cg._id,
+        name: cg.name,
+        phone: cg.phone,
+        relationship: cg.relationship,
+        isPrimary: cg.isPrimary,
+        whatsappUrl: `https://wa.me/${waNumber}?text=${encodedMsg}`,
+        smsUrl: `sms:${cleanPhone}?body=${encodedMsg}`,
+        callUrl: `tel:${cleanPhone}`,
+        status: 'Dispatched (SMS / WhatsApp Ready)'
+      };
+    });
+
     if (isDBConnected()) {
       const emergencyDomain = new EmergencyAlertDomain({
         patientId,
@@ -29,10 +59,15 @@ const triggerSOS = async (req, res, next) => {
       });
 
       const savedAlert = await emergencyDomain.triggerSOS();
+      savedAlert.notifiedCaregivers = dispatchedCaregivers;
+      await savedAlert.save();
+
       return res.status(201).json({
         success: true,
-        message: '🚨 EMERGENCY SOS TRIGGERED! Caregivers and emergency contacts have been alerted.',
-        alert: savedAlert
+        message: `🚨 EMERGENCY SOS TRIGGERED! Alert dispatched to ${caregivers.length} caregiver(s).`,
+        alert: savedAlert,
+        alertMessage,
+        caregivers: dispatchedCaregivers
       });
     } else {
       const newAlert = {
@@ -41,14 +76,17 @@ const triggerSOS = async (req, res, next) => {
         alertTime: new Date().toISOString(),
         status: 'triggered',
         location: locationData,
+        notifiedCaregivers: dispatchedCaregivers,
         notes: notes || 'Immediate medical assistance required!'
       };
       fallbackStore.emergencyAlerts.unshift(newAlert);
 
       return res.status(201).json({
         success: true,
-        message: '🚨 EMERGENCY SOS TRIGGERED! Caregivers and emergency contacts have been alerted.',
-        alert: newAlert
+        message: `🚨 EMERGENCY SOS TRIGGERED! Alert dispatched to ${caregivers.length} caregiver(s).`,
+        alert: newAlert,
+        alertMessage,
+        caregivers: dispatchedCaregivers
       });
     }
   } catch (error) {

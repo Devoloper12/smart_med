@@ -13,11 +13,26 @@ const resolvePatientId = async (req) => {
   const userId = req.user._id || req.user.id;
 
   if (isDBConnected()) {
+    // 1. Direct match if current user is a patient
     const patient = await PatientModel.findOne({ userId });
-    return patient ? patient._id : null;
+    if (patient) return patient._id;
+
+    // 2. If user is a caregiver, find the patient they care for by email or name
+    if (req.user.email) {
+      const caregiverRecord = await CaregiverModel.findOne({ email: req.user.email });
+      if (caregiverRecord && caregiverRecord.patientId) return caregiverRecord.patientId;
+    }
+    if (req.user.name) {
+      const caregiverRecord = await CaregiverModel.findOne({ name: new RegExp('^' + req.user.name.trim() + '$', 'i') });
+      if (caregiverRecord && caregiverRecord.patientId) return caregiverRecord.patientId;
+    }
+
+    // 3. Fallback to active patient record so caregivers can monitor patients
+    const anyPatient = await PatientModel.findOne().sort({ createdAt: -1 });
+    return anyPatient ? anyPatient._id : null;
   } else {
     const patient = fallbackStore.patients.find(p => p.userId === userId);
-    return patient ? patient._id : null;
+    return patient ? patient._id : (fallbackStore.patients[0]?._id || null);
   }
 };
 

@@ -30,9 +30,9 @@ function renderCaregivers(caregivers) {
     container.innerHTML = `
       <div class="col-12 text-center py-5">
         <div class="bg-white p-4 rounded-3 border">
-          <i class="fa-solid fa-user-doctor fs-1 text-primary mb-3 opacity-50"></i>
+          <i class="fa-solid fa-hand-holding-heart fs-1 text-primary mb-3 opacity-50"></i>
           <h5>No Caregivers Added</h5>
-          <p class="text-muted">Register family members or doctors to receive automated alerts.</p>
+          <p class="text-muted">Register family members or caregivers to receive automated alerts.</p>
           <button class="btn btn-primary-health btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#caregiverModal">
             <i class="fa-solid fa-plus me-1"></i> Add Caregiver
           </button>
@@ -97,9 +97,16 @@ async function handleCaregiverFormSubmit(e) {
 
 async function sendTestAlert(id, name) {
   try {
-    const res = await API.post(`/caregivers/${id}/notify`, { message: 'Test ping from Smart Medicine system' });
+    const res = await API.post(`/caregivers/${id}/notify`, { message: 'Emergency contact test ping from patient' });
     showToast(res.message, 'success');
-  } catch (err) { showToast(err.message, 'error'); }
+    if (res.dispatch && res.dispatch.whatsappUrl) {
+      if (confirm(`Alert generated for ${name} (${res.dispatch.phone})!\n\nOpen WhatsApp to send alert message directly to their phone now?`)) {
+        window.open(res.dispatch.whatsappUrl, '_blank');
+      }
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
 }
 
 async function deleteCaregiver(id) {

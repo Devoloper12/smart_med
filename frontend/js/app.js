@@ -147,7 +147,7 @@ function updateNavbarAuth() {
             <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>Medicines</a></li>
             <li><a class="dropdown-item" href="reminders.html"><i class="fa-solid fa-bell me-2 text-warning"></i>Reminders</a></li>
             <li><a class="dropdown-item" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-2 text-info"></i>Prescriptions</a></li>
-            <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-user-doctor me-2 text-secondary"></i>Caregivers</a></li>
+            <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-2 text-secondary"></i>Caregivers</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" id="logout-btn"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button></li>
           </ul>
@@ -188,8 +188,32 @@ function handleLogout(e) {
   setTimeout(() => { window.location.href = 'index.html'; }, 500);
 }
 
+let emergencyPollInterval = null;
+function startCaregiverAlertMonitor() {
+  const token = API.getToken();
+  const user = API.getUser();
+  if (!token || !user || user.role !== 'caregiver') return;
+
+  async function checkAlerts() {
+    try {
+      const data = await API.get('/emergency');
+      const active = (data.alerts || []).find(a => a.status === 'triggered');
+      if (active) {
+        playEmergencySiren();
+        showToast(`🚨 PATIENT EMERGENCY SOS ACTIVE! Location: ${active.location?.address || 'Patient Residence'}`, 'error', 'URGENT CAREGIVER ALERT');
+      }
+    } catch (e) {}
+  }
+
+  checkAlerts();
+  if (!emergencyPollInterval) {
+    emergencyPollInterval = setInterval(checkAlerts, 15000);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   requireAuth();
   updateNavbarAuth();
+  startCaregiverAlertMonitor();
 });

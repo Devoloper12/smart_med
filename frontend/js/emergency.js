@@ -82,9 +82,65 @@ async function handleEmergencySOSTrigger() {
     const res = await API.post('/emergency/sos', payload);
     showToast(res.message, 'error', '🚨 SOS TRIGGERED');
     await loadEmergencyAlertHistory();
+    showEmergencyDispatchModal(res.caregivers, res.alertMessage);
   } catch (err) {
     showToast(err.message, 'error');
   }
+}
+
+function showEmergencyDispatchModal(caregivers = [], alertMessage = '') {
+  const modalEl = document.getElementById('sosDispatchModal');
+  if (!modalEl) return;
+
+  const msgPreview = document.getElementById('sos-message-preview');
+  if (msgPreview) msgPreview.innerText = alertMessage || 'Immediate medical assistance required!';
+
+  const listContainer = document.getElementById('sos-caregivers-dispatch-list');
+  if (listContainer) {
+    if (!caregivers || caregivers.length === 0) {
+      listContainer.innerHTML = `
+        <div class="p-3 text-center bg-warning bg-opacity-10 text-warning rounded-3 border">
+          <i class="fa-solid fa-circle-exclamation me-1"></i> No caregivers currently connected.
+          <div class="mt-2">
+            <a href="caregivers.html" class="btn btn-sm btn-primary rounded-pill">Add Caregiver Now</a>
+          </div>
+        </div>
+      `;
+    } else {
+      listContainer.innerHTML = caregivers.map(cg => `
+        <div class="p-3 border rounded-3 bg-white shadow-sm d-flex flex-column gap-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <strong class="fs-6">${cg.name}</strong>
+              <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small ms-1">${cg.relationship || 'Caregiver'}</span>
+              ${cg.isPrimary ? '<span class="badge bg-success rounded-pill small ms-1">Primary</span>' : ''}
+            </div>
+            <div class="small text-muted">${cg.phone}</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-1">
+            <a href="${cg.whatsappUrl}" target="_blank" class="btn btn-sm btn-success rounded-pill flex-fill">
+              <i class="fa-brands fa-whatsapp me-1"></i> Send via WhatsApp
+            </a>
+            <a href="${cg.smsUrl}" class="btn btn-sm btn-primary rounded-pill flex-fill">
+              <i class="fa-solid fa-comment-sms me-1"></i> Send via SMS
+            </a>
+            <a href="${cg.callUrl}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+              <i class="fa-solid fa-phone me-1"></i> Call
+            </a>
+          </div>
+        </div>
+      `).join('');
+
+      // Auto-trigger WhatsApp for primary caregiver
+      const primary = caregivers.find(c => c.isPrimary) || caregivers[0];
+      if (primary && primary.whatsappUrl) {
+        window.open(primary.whatsappUrl, '_blank');
+      }
+    }
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
 }
 
 function autoDetectLocation() {

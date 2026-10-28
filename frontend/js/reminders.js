@@ -145,11 +145,19 @@ async function handleMarkTaken(id) {
 }
 
 async function handleMarkMissed(id) {
-  if (!confirm('Mark dose as missed?')) return;
+  if (!confirm('Mark dose as missed? This notifies registered caregivers.')) return;
   try {
     const res = await API.patch(`/reminders/${id}/missed`);
     showToast(res.message, 'warning');
     await loadReminders();
+    if (res.caregivers && res.caregivers.length > 0) {
+      const primary = res.caregivers.find(c => c.isPrimary) || res.caregivers[0];
+      if (primary && primary.whatsappUrl) {
+        if (confirm(`Alert generated! Open WhatsApp to send missed dose alert to caregiver ${primary.name}?`)) {
+          window.open(primary.whatsappUrl, '_blank');
+        }
+      }
+    }
   } catch (err) { showToast(err.message, 'error'); }
 }
 

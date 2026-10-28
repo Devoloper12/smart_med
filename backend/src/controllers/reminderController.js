@@ -94,16 +94,39 @@ const markMissed = async (req, res, next) => {
       const medicine = await MedicineModel.findById(updated.medicineId);
 
       const caregivers = await CaregiverModel.find({ patientId });
+      const patientName = req.user.name || 'Patient';
+      const medName = medicine?.medicineName || 'Scheduled Medicine';
+      const missedMsg = `⚠️ SmartMed Alert: Patient ${patientName} missed their scheduled dose of ${medName} at ${new Date().toLocaleTimeString()}. Please verify.`;
+
+      const dispatchedCaregivers = caregivers.map(cg => {
+        const cleanPhone = (cg.phone || '').replace(/[^\d+]/g, '');
+        const waNumber = cleanPhone.replace('+', '');
+        const encoded = encodeURIComponent(missedMsg);
+        return {
+          caregiverId: cg._id,
+          name: cg.name,
+          phone: cg.phone,
+          whatsappUrl: `https://wa.me/${waNumber}?text=${encoded}`,
+          smsUrl: `sms:${cleanPhone}?body=${encoded}`,
+          callUrl: `tel:${cleanPhone}`
+        };
+      });
+
       caregivers.forEach(cg => {
         const cgDomain = new CaregiverDomain({ name: cg.name, phone: cg.phone, relationship: cg.relationship });
         cgDomain.receiveAlert({
           type: 'MISSED_MEDICINE',
-          message: `Missed dose: ${medicine?.medicineName || 'Medication'}`,
-          patientName: req.user.name
+          message: missedMsg,
+          patientName
         });
       });
 
-      return res.status(200).json({ success: true, message: 'Dose marked as missed. Caregivers notified.', reminder: updated });
+      return res.status(200).json({
+        success: true,
+        message: 'Dose marked as missed. Caregivers alerted.',
+        reminder: updated,
+        caregivers: dispatchedCaregivers
+      });
     } else {
       const rem = fallbackStore.reminders.find(r => String(r._id) === String(id));
       if (rem) rem.status = 'missed';

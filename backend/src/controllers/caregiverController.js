@@ -97,18 +97,32 @@ const notifyCaregiver = async (req, res, next) => {
     let caregiverData = isDBConnected() ? await CaregiverModel.findById(id) : fallbackStore.caregivers.find(c => String(c._id) === String(id));
     if (!caregiverData) return res.status(404).json({ success: false, message: 'Caregiver not found.' });
 
+    const patientName = req.user.name || 'Your Patient';
+    const alertText = `🔔 SmartMed Alert from ${patientName}: ${message}. Emergency contact verified.`;
+    const cleanPhone = (caregiverData.phone || '').replace(/[^\d+]/g, '');
+    const waNumber = cleanPhone.replace('+', '');
+    const encoded = encodeURIComponent(alertText);
+
     const caregiverDomain = new CaregiverDomain({
       name: caregiverData.name,
       phone: caregiverData.phone,
       relationship: caregiverData.relationship
     });
 
-    const receipt = caregiverDomain.receiveAlert({ type, message, patientName: req.user.name });
+    const receipt = caregiverDomain.receiveAlert({ type, message: alertText, patientName });
 
     return res.status(200).json({
       success: true,
-      message: `Notification sent to ${caregiverData.name}!`,
-      deliveryReport: receipt
+      message: `Alert generated for ${caregiverData.name}!`,
+      deliveryReport: receipt,
+      dispatch: {
+        name: caregiverData.name,
+        phone: caregiverData.phone,
+        message: alertText,
+        whatsappUrl: `https://wa.me/${waNumber}?text=${encoded}`,
+        smsUrl: `sms:${cleanPhone}?body=${encoded}`,
+        callUrl: `tel:${cleanPhone}`
+      }
     });
   } catch (error) {
     next(error);

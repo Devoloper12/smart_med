@@ -36,6 +36,33 @@ async function loadDashboardData() {
     renderTodaySchedule(stats.todayMedicines || []);
     renderUpcomingReminders(stats.upcomingReminders || []);
     renderAdherenceChart(stats.weeklyAdherence);
+
+    // Check for active Emergency SOS alerts (vital for caregivers and patients)
+    try {
+      const emData = await API.get('/emergency');
+      const activeAlert = (emData.alerts || []).find(a => a.status === 'triggered');
+      let bannerContainer = document.getElementById('active-sos-banner');
+      if (activeAlert) {
+        if (!bannerContainer) {
+          bannerContainer = document.createElement('div');
+          bannerContainer.id = 'active-sos-banner';
+          bannerContainer.className = 'alert alert-danger shadow border-danger d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 rounded-3';
+          document.querySelector('main.container')?.prepend(bannerContainer);
+        }
+        bannerContainer.innerHTML = `
+          <div>
+            <i class="fa-solid fa-triangle-exclamation fs-4 me-2 text-danger"></i>
+            <strong>ACTIVE EMERGENCY SOS ALERT!</strong>
+            <div class="small mt-1 text-danger-emphasis">${activeAlert.notes || 'Emergency assistance requested'} &bull; Location: ${activeAlert.location?.address || 'Current Location'}</div>
+          </div>
+          <div class="d-flex gap-2 mt-2 mt-sm-0">
+            <a href="emergency.html" class="btn btn-sm btn-danger rounded-pill px-3">Open SOS Responder</a>
+          </div>
+        `;
+      } else if (bannerContainer) {
+        bannerContainer.remove();
+      }
+    } catch (e) {}
   } catch (err) {
     console.error('Dashboard load error:', err);
   }
@@ -166,6 +193,14 @@ async function markMissed(reminderId) {
     const res = await API.patch(`/reminders/${reminderId}/missed`);
     showToast(res.message, 'warning');
     await loadDashboardData();
+    if (res.caregivers && res.caregivers.length > 0) {
+      const primary = res.caregivers.find(c => c.isPrimary) || res.caregivers[0];
+      if (primary && primary.whatsappUrl) {
+        if (confirm(`Dose marked missed! Open WhatsApp to send alert message to caregiver ${primary.name}?`)) {
+          window.open(primary.whatsappUrl, '_blank');
+        }
+      }
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }

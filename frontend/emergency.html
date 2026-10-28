@@ -30,7 +30,7 @@
           <li class="nav-item"><a class="nav-link" href="medicines.html"><i class="fa-solid fa-pills me-1"></i> Medicines</a></li>
           <li class="nav-item"><a class="nav-link" href="reminders.html"><i class="fa-solid fa-bell me-1"></i> Reminders</a></li>
           <li class="nav-item"><a class="nav-link" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-1"></i> Prescriptions</a></li>
-          <li class="nav-item"><a class="nav-link" href="caregivers.html"><i class="fa-solid fa-user-doctor me-1"></i> Caregivers</a></li>
+          <li class="nav-item"><a class="nav-link" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-1"></i> Caregivers</a></li>
         </ul>
 
         <div class="d-flex align-items-center gap-3">
@@ -152,6 +152,42 @@
 
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
+
+  <!-- Emergency Dispatch Modal -->
+  <div class="modal fade" id="sosDispatchModal" tabindex="-1" aria-labelledby="sosDispatchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger shadow-lg">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold" id="sosDispatchModalLabel">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>Emergency Alert Dispatched
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+            <i class="fa-solid fa-bell me-2 fs-4"></i>
+            <div>
+              <strong>SOS alert logged to system!</strong>
+              <div class="small">Send the emergency alert directly to your caregiver's phone below:</div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 mb-3 border">
+            <div class="small fw-bold text-muted mb-1">Message Dispatched:</div>
+            <p class="small mb-0 text-dark font-monospace" id="sos-message-preview"></p>
+          </div>
+
+          <h6 class="fw-bold mb-2">Connected Caregivers to Alert:</h6>
+          <div id="sos-caregivers-dispatch-list" class="d-flex flex-column gap-2 mb-3">
+            <!-- Dynamic caregiver dispatch items -->
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
