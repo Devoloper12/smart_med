@@ -2,6 +2,16 @@ let currentFilter = 'today';
 let patientMedicinesList = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const isCg = window.isCaregiver && window.isCaregiver();
+  if (isCg) {
+    const addBtn = document.getElementById('add-reminder-header-btn');
+    if (addBtn) addBtn.style.display = 'none';
+    const badgeEl = document.getElementById('reminders-count-badge');
+    if (badgeEl) {
+      badgeEl.insertAdjacentHTML('afterend', '<span class="badge bg-info text-dark rounded-pill px-3 py-1 ms-2"><i class="fa-solid fa-user-shield me-1"></i>Caregiver Read-Only</span>');
+    }
+  }
+
   await loadMedicinesDropdown();
   await loadReminders();
 
@@ -55,6 +65,7 @@ async function loadReminders() {
 function renderReminders(reminders) {
   const container = document.getElementById('reminders-container');
   const countEl = document.getElementById('reminders-count-badge');
+  const isCg = window.isCaregiver && window.isCaregiver();
   if (countEl) countEl.innerText = `${reminders.length} Record${reminders.length === 1 ? '' : 's'}`;
   if (!container) return;
 
@@ -63,10 +74,12 @@ function renderReminders(reminders) {
       <div class="text-center py-5 bg-white rounded-3 border">
         <i class="fa-regular fa-bell-slash fs-1 text-muted mb-3 opacity-50"></i>
         <h5>No reminders found</h5>
-        <p class="text-muted">No scheduled reminders in this category.</p>
-        <button class="btn btn-primary-health btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reminderModal">
-          <i class="fa-solid fa-plus me-1"></i> Add Custom Reminder
-        </button>
+        <p class="text-muted">${isCg ? 'No scheduled reminders for monitored patient in this category.' : 'No scheduled reminders in this category.'}</p>
+        ${!isCg ? `
+          <button class="btn btn-primary-health btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reminderModal">
+            <i class="fa-solid fa-plus me-1"></i> Add Custom Reminder
+          </button>
+        ` : ''}
       </div>
     `;
     return;
@@ -100,7 +113,7 @@ function renderReminders(reminders) {
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
-          ${isPending ? `
+          ${!isCg && isPending ? `
             <button class="btn btn-sm btn-success rounded-pill px-3" onclick="handleMarkTaken('${r._id}')">
               <i class="fa-solid fa-check me-1"></i> Taken
             </button>
@@ -110,6 +123,10 @@ function renderReminders(reminders) {
             <button class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="handleSnooze('${r._id}')" title="Snooze 15m">
               <i class="fa-solid fa-clock-rotate-left"></i> 15m
             </button>
+          ` : isCg ? `
+            <span class="badge bg-secondary bg-opacity-10 text-secondary small py-1 px-2">
+              <i class="fa-solid fa-eye me-1"></i>Caregiver View
+            </span>
           ` : `<span class="small text-muted fst-italic">Logged</span>`}
         </div>
       </div>
@@ -119,6 +136,10 @@ function renderReminders(reminders) {
 
 async function handleCreateReminder(e) {
   e.preventDefault();
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot create reminders.', 'warning');
+    return;
+  }
   const medicineId = document.getElementById('reminder-medicine-select').value;
   const reminderTime = document.getElementById('reminder-datetime').value;
   const notes = document.getElementById('reminder-notes').value.trim();
@@ -136,6 +157,10 @@ async function handleCreateReminder(e) {
 }
 
 async function handleMarkTaken(id) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot mark doses.', 'warning');
+    return;
+  }
   try {
     playReminderChime();
     const res = await API.patch(`/reminders/${id}/taken`);
@@ -145,6 +170,10 @@ async function handleMarkTaken(id) {
 }
 
 async function handleMarkMissed(id) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot mark doses.', 'warning');
+    return;
+  }
   if (!confirm('Mark dose as missed? This notifies registered caregivers.')) return;
   try {
     const res = await API.patch(`/reminders/${id}/missed`);
@@ -162,6 +191,10 @@ async function handleMarkMissed(id) {
 }
 
 async function handleSnooze(id) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot snooze reminders.', 'warning');
+    return;
+  }
   try {
     const res = await API.patch(`/reminders/${id}/snooze`, { minutes: 15 });
     showToast(res.message, 'info');

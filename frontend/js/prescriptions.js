@@ -1,6 +1,18 @@
 let allPrescriptions = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const isCg = window.isCaregiver && window.isCaregiver();
+  if (isCg) {
+    const uploadBtn = document.getElementById('upload-rx-header-btn');
+    if (uploadBtn) uploadBtn.style.display = 'none';
+    const uploadCollapse = document.getElementById('uploadCollapse');
+    if (uploadCollapse) uploadCollapse.remove();
+    const countBadge = document.getElementById('prescriptions-count-badge');
+    if (countBadge) {
+      countBadge.insertAdjacentHTML('afterend', '<span class="badge bg-info text-dark rounded-pill px-3 py-1 ms-2"><i class="fa-solid fa-user-shield me-1"></i>Caregiver Read-Only</span>');
+    }
+  }
+
   await loadPrescriptions();
   setupDropzone();
 
@@ -38,6 +50,7 @@ async function loadPrescriptions() {
 function renderPrescriptions(prescriptions) {
   const container = document.getElementById('prescriptions-container');
   const countBadge = document.getElementById('prescriptions-count-badge');
+  const isCg = window.isCaregiver && window.isCaregiver();
   if (countBadge) countBadge.innerText = `${prescriptions.length} Document${prescriptions.length === 1 ? '' : 's'}`;
   if (!container) return;
 
@@ -47,7 +60,7 @@ function renderPrescriptions(prescriptions) {
         <div class="bg-white p-4 rounded-3 border">
           <i class="fa-solid fa-file-prescription fs-1 text-primary mb-3 opacity-50"></i>
           <h5>No Prescriptions Stored</h5>
-          <p class="text-muted">Upload and safeguard digital prescriptions here.</p>
+          <p class="text-muted">${isCg ? 'No prescription documents uploaded yet by the patient.' : 'Upload and safeguard digital prescriptions here.'}</p>
         </div>
       </div>
     `;
@@ -68,14 +81,17 @@ function renderPrescriptions(prescriptions) {
             <h6 class="fw-bold text-truncate mb-1">${rx.originalName || 'Prescription'}</h6>
             <div class="small text-primary fw-medium mb-2"><i class="fa-solid fa-user-doctor me-1"></i>${rx.doctorName}</div>
             <div class="small text-muted"><i class="fa-regular fa-calendar me-1"></i>${rxDate}</div>
+            ${rx.notes ? `<div class="small text-secondary mt-1 text-truncate">${rx.notes}</div>` : ''}
           </div>
           <div class="p-3 border-top bg-light bg-opacity-25 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <a href="${fullDownloadUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+            <a href="${fullDownloadUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill ${isCg ? 'w-100 text-center' : ''}">
               <i class="fa-regular fa-eye me-1"></i> View / Download
             </a>
-            <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="deletePrescription('${rx._id}')">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            ${!isCg ? `
+              <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="deletePrescription('${rx._id}')" title="Delete Prescription">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -85,6 +101,11 @@ function renderPrescriptions(prescriptions) {
 
 async function handlePrescriptionUpload(e) {
   e.preventDefault();
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot upload prescriptions.', 'warning');
+    return;
+  }
+
   const fileInput = document.getElementById('rx-file');
   const doctorName = document.getElementById('rx-doctor').value.trim();
   const prescriptionDate = document.getElementById('rx-date').value;
@@ -111,6 +132,10 @@ async function handlePrescriptionUpload(e) {
 }
 
 async function deletePrescription(id) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot delete prescriptions.', 'warning');
+    return;
+  }
   if (!confirm('Delete prescription?')) return;
   try {
     const res = await API.delete(`/prescriptions/${id}`);

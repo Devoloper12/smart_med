@@ -2,9 +2,34 @@ let adherenceChart = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const user = API.getUser();
+  const isCg = window.isCaregiver ? window.isCaregiver() : (user && user.role === 'caregiver');
+
   if (user) {
     const greetingEl = document.getElementById('user-greeting');
-    if (greetingEl) greetingEl.innerText = user.name || 'Patient';
+    if (greetingEl) {
+      greetingEl.innerText = user.name || 'Patient';
+      if (isCg) {
+        greetingEl.innerHTML = `${user.name || 'Caregiver'} <span class="badge bg-info text-dark ms-2 align-middle fs-6">Caregiver Mode</span>`;
+      }
+    }
+  }
+
+  // RBAC for Header Action Buttons on Dashboard
+  const addMedBtn = document.getElementById('dashboard-add-med-btn');
+  const quickSosBtn = document.getElementById('dashboard-sos-btn');
+
+  if (isCg) {
+    // Caregivers CANNOT add medicines - hide the button
+    if (addMedBtn) addMedBtn.style.display = 'none';
+
+    // Replace SOS button with SOS Monitor link for caregivers
+    if (quickSosBtn) {
+      quickSosBtn.className = 'btn btn-outline-danger btn-sm rounded-pill px-3';
+      quickSosBtn.innerHTML = '<i class="fa-solid fa-truck-medical me-1"></i> SOS Monitor';
+      quickSosBtn.onclick = () => { window.location.href = 'emergency.html'; };
+    }
+  } else {
+    if (quickSosBtn) quickSosBtn.addEventListener('click', triggerQuickEmergencySOS);
   }
 
   const dateEl = document.getElementById('current-date');
@@ -14,9 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await loadDashboardData();
-
-  const quickSosBtn = document.getElementById('dashboard-sos-btn');
-  if (quickSosBtn) quickSosBtn.addEventListener('click', triggerQuickEmergencySOS);
 });
 
 async function loadDashboardData() {
@@ -24,6 +46,38 @@ async function loadDashboardData() {
     const data = await API.get('/patients/dashboard-stats');
     if (!data || !data.stats) return;
     const stats = data.stats;
+    const isCg = data.isCaregiver || (window.isCaregiver && window.isCaregiver());
+
+    // Caregiver Monitoring Banner
+    if (isCg) {
+      let cgBanner = document.getElementById('caregiver-monitoring-banner');
+      if (!cgBanner) {
+        cgBanner = document.createElement('div');
+        cgBanner.id = 'caregiver-monitoring-banner';
+        cgBanner.className = 'alert alert-info border-info d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 rounded-3 shadow-sm';
+        document.querySelector('main.container')?.prepend(cgBanner);
+      }
+      const pat = data.monitoredPatient;
+      cgBanner.innerHTML = `
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-info bg-opacity-25 rounded-circle p-2 d-flex align-items-center justify-content-center text-info" style="width: 44px; height: 44px;">
+            <i class="fa-solid fa-user-shield fs-5"></i>
+          </div>
+          <div>
+            <div class="fw-bold fs-6">Caregiver Monitoring Mode &bull; Read-Only Account</div>
+            <div class="small text-muted">
+              Monitoring Patient: <strong>${pat?.name || 'Linked Patient'}</strong>
+              ${pat?.email ? `&bull; ${pat.email}` : ''}
+              &bull; Blood: <strong>${pat?.bloodGroup || 'O+'}</strong>
+              &bull; Age: <strong>${pat?.age || 30}</strong>
+            </div>
+          </div>
+        </div>
+        <span class="badge bg-info text-dark rounded-pill px-3 py-2 mt-2 mt-sm-0">
+          <i class="fa-solid fa-circle-check me-1 text-success"></i> Monitoring Active
+        </span>
+      `;
+    }
 
     document.getElementById('metric-today-count').innerText = stats.todayMedicinesCount || 0;
     document.getElementById('metric-upcoming-count').innerText = stats.upcomingRemindersCount || 0;
@@ -71,15 +125,18 @@ async function loadDashboardData() {
 function renderTodaySchedule(medicines) {
   const container = document.getElementById('today-schedule-list');
   if (!container) return;
+  const isCg = window.isCaregiver && window.isCaregiver();
 
   if (medicines.length === 0) {
     container.innerHTML = `
       <div class="text-center py-4 text-muted">
         <i class="fa-solid fa-calendar-check fs-1 mb-2 text-secondary opacity-50"></i>
         <p class="mb-2">No medications scheduled for today!</p>
-        <a href="medicines.html" class="btn btn-outline-primary btn-sm rounded-pill">
-          <i class="fa-solid fa-plus me-1"></i> Add Medication
-        </a>
+        ${!isCg ? `
+          <a href="medicines.html" class="btn btn-outline-primary btn-sm rounded-pill">
+            <i class="fa-solid fa-plus me-1"></i> Add Medication
+          </a>
+        ` : `<div class="small text-secondary">Patient has no doses pending today.</div>`}
       </div>
     `;
     return;
@@ -109,13 +166,17 @@ function renderTodaySchedule(medicines) {
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
           <span class="badge-status ${item.status}">${item.status}</span>
-          ${item.status === 'pending' || item.status === 'snoozed' ? `
+          ${!isCg && (item.status === 'pending' || item.status === 'snoozed') ? `
             <button class="btn btn-sm btn-success rounded-pill px-3" onclick="markTaken('${item._id}')" title="Mark Taken">
               <i class="fa-solid fa-check me-1"></i> Taken
             </button>
             <button class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="markMissed('${item._id}')" title="Mark Missed">
               <i class="fa-solid fa-xmark"></i>
             </button>
+          ` : isCg ? `
+            <span class="badge bg-secondary bg-opacity-10 text-secondary small py-1 px-2">
+              <i class="fa-solid fa-eye me-1"></i>Caregiver View
+            </span>
           ` : ''}
         </div>
       </div>
@@ -177,6 +238,10 @@ function renderAdherenceChart(adherenceData) {
 }
 
 async function markTaken(reminderId) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregivers have read-only access and cannot alter patient medications.', 'warning');
+    return;
+  }
   try {
     playReminderChime();
     const res = await API.patch(`/reminders/${reminderId}/taken`);
@@ -188,6 +253,10 @@ async function markTaken(reminderId) {
 }
 
 async function markMissed(reminderId) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregivers have read-only access and cannot alter patient medications.', 'warning');
+    return;
+  }
   if (!confirm('Mark dose as missed? This notifies registered caregivers.')) return;
   try {
     const res = await API.patch(`/reminders/${reminderId}/missed`);
@@ -207,6 +276,10 @@ async function markMissed(reminderId) {
 }
 
 async function triggerQuickEmergencySOS() {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregivers cannot trigger SOS. Only patients can trigger emergency SOS.', 'warning');
+    return;
+  }
   if (!confirm('Are you sure you want to trigger EMERGENCY SOS now?')) return;
   playEmergencySiren();
 

@@ -1,8 +1,66 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  const isCg = window.isCaregiver && window.isCaregiver();
+  if (isCg) {
+    setupCaregiverSOSView();
+  } else {
+    document.getElementById('giant-sos-btn')?.addEventListener('click', handleEmergencySOSTrigger);
+    document.getElementById('detect-location-btn')?.addEventListener('click', autoDetectLocation);
+  }
+
   await loadEmergencyData();
-  document.getElementById('giant-sos-btn')?.addEventListener('click', handleEmergencySOSTrigger);
-  document.getElementById('detect-location-btn')?.addEventListener('click', autoDetectLocation);
 });
+
+async function setupCaregiverSOSView() {
+  const container = document.querySelector('.health-card.border-danger');
+  if (!container) return;
+
+  try {
+    const data = await API.get('/emergency');
+    const active = (data.alerts || []).find(a => a.status === 'triggered');
+
+    container.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+          <h3 class="fw-bold text-danger mb-0">
+            <i class="fa-solid fa-truck-medical me-2"></i>Emergency SOS Monitor
+          </h3>
+          <div class="text-muted small">Caregiver Live Receiver &bull; Monitoring Patient Distress Signals</div>
+        </div>
+        <span class="badge bg-info text-dark rounded-pill px-3 py-2">Caregiver Mode</span>
+      </div>
+
+      ${active ? `
+        <div class="alert alert-danger border-danger p-4 rounded-3 shadow my-3 text-start">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+            <h5 class="fw-bold text-danger mb-0">🚨 ACTIVE PATIENT EMERGENCY SOS!</h5>
+          </div>
+          <div class="mb-2"><strong>📍 Location:</strong> ${active.location?.address || 'Current Residence'}</div>
+          <div class="mb-3"><strong>📝 Distress Notes:</strong> ${active.notes || 'Emergency assistance requested'}</div>
+          <div class="small text-muted mb-3">Triggered at: ${new Date(active.alertTime).toLocaleString()}</div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-success btn-sm rounded-pill px-4" onclick="resolveEmergencyAlert('${active._id}')">
+              <i class="fa-solid fa-circle-check me-1"></i> Mark Resolved & Safe
+            </button>
+            <a href="tel:911" class="btn btn-danger btn-sm rounded-pill px-3">
+              <i class="fa-solid fa-phone me-1"></i> Call 911 / 112
+            </a>
+          </div>
+        </div>
+      ` : `
+        <div class="p-4 rounded-3 bg-light border border-success border-opacity-25 my-4">
+          <div class="text-success mb-2">
+            <i class="fa-solid fa-shield-heart" style="font-size: 3rem;"></i>
+          </div>
+          <h4 class="fw-bold text-dark">Patient is Safe &bull; No Active Emergencies</h4>
+          <p class="text-muted small mb-0">
+            Your caregiver monitoring channel is active. If your linked patient activates SOS, an audible alarm and notification will broadcast directly to you.
+          </p>
+        </div>
+      `}
+    `;
+  } catch (e) {}
+}
 
 async function loadEmergencyData() {
   await Promise.all([loadCaregiverContacts(), loadEmergencyAlertHistory()]);
@@ -72,6 +130,10 @@ async function loadEmergencyAlertHistory() {
 }
 
 async function handleEmergencySOSTrigger() {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Only patients can trigger emergency SOS. Caregivers monitor and respond to alerts.', 'warning');
+    return;
+  }
   const addressInput = document.getElementById('emergency-address')?.value || 'Patient Residence';
   const notesInput = document.getElementById('emergency-notes')?.value || 'Emergency SOS triggered by patient';
 

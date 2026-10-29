@@ -38,18 +38,31 @@ const resolvePatientId = async (req) => {
 
 const getPatientProfile = async (req, res, next) => {
   try {
-    const userId = req.user._id || req.user.id;
+    const isCaregiver = req.user && req.user.role === 'caregiver';
+    const patientId = await resolvePatientId(req);
 
     if (isDBConnected()) {
-      let patient = await PatientModel.findOne({ userId }).populate('userId', 'name email role');
-      if (!patient) {
-        patient = await PatientModel.create({ userId, age: 30, bloodGroup: 'Unknown', medicalConditions: [] });
-        patient = await patient.populate('userId', 'name email role');
+      let patient = null;
+      if (isCaregiver && patientId) {
+        patient = await PatientModel.findById(patientId).populate('userId', 'name email role');
+      } else {
+        const userId = req.user._id || req.user.id;
+        patient = await PatientModel.findOne({ userId }).populate('userId', 'name email role');
+        if (!patient && req.user.role === 'patient') {
+          patient = await PatientModel.create({ userId, age: 30, bloodGroup: 'Unknown', medicalConditions: [] });
+          patient = await patient.populate('userId', 'name email role');
+        }
       }
-      return res.status(200).json({ success: true, patient });
+      return res.status(200).json({ success: true, patient, isCaregiverMonitoring: isCaregiver });
     } else {
-      let patient = fallbackStore.patients.find(p => p.userId === userId);
-      return res.status(200).json({ success: true, patient: { ...patient, userId: req.user } });
+      let patient = null;
+      if (isCaregiver && patientId) {
+        patient = fallbackStore.patients.find(p => String(p._id) === String(patientId));
+      } else {
+        const userId = req.user._id || req.user.id;
+        patient = fallbackStore.patients.find(p => p.userId === userId) || fallbackStore.patients[0];
+      }
+      return res.status(200).json({ success: true, patient: { ...patient, userId: patient?.userId || req.user }, isCaregiverMonitoring: isCaregiver });
     }
   } catch (error) {
     next(error);
@@ -89,10 +102,43 @@ const updatePatientProfile = async (req, res, next) => {
 
 const getDashboardStats = async (req, res, next) => {
   try {
+    const isCaregiver = req.user && req.user.role === 'caregiver';
     const patientId = await resolvePatientId(req);
+
+    let monitoredPatient = null;
+    if (patientId) {
+      if (isDBConnected()) {
+        const patientDoc = await PatientModel.findById(patientId).populate('userId', 'name email role');
+        if (patientDoc) {
+          monitoredPatient = {
+            id: patientDoc._id,
+            name: patientDoc.userId?.name || 'Patient',
+            email: patientDoc.userId?.email || '',
+            age: patientDoc.age,
+            bloodGroup: patientDoc.bloodGroup,
+            medicalConditions: patientDoc.medicalConditions || []
+          };
+        }
+      } else {
+        const p = fallbackStore.patients.find(pt => String(pt._id) === String(patientId)) || fallbackStore.patients[0];
+        if (p) {
+          monitoredPatient = {
+            id: p._id,
+            name: 'Patient User',
+            email: 'patient@smartmed.com',
+            age: p.age || 35,
+            bloodGroup: p.bloodGroup || 'O+',
+            medicalConditions: p.medicalConditions || []
+          };
+        }
+      }
+    }
+
     if (!patientId) {
       return res.status(200).json({
         success: true,
+        isCaregiver,
+        monitoredPatient,
         stats: {
           todayMedicinesCount: 0,
           upcomingRemindersCount: 0,
@@ -174,6 +220,8 @@ const getDashboardStats = async (req, res, next) => {
 
       return res.status(200).json({
         success: true,
+        isCaregiver,
+        monitoredPatient,
         stats: {
           todayMedicinesCount: todayReminders.length,
           upcomingRemindersCount: upcomingReminders.length,
@@ -196,6 +244,8 @@ const getDashboardStats = async (req, res, next) => {
 
       return res.status(200).json({
         success: true,
+        isCaregiver,
+        monitoredPatient,
         stats: {
           todayMedicinesCount: todayReminders.length || 2,
           upcomingRemindersCount: 1,

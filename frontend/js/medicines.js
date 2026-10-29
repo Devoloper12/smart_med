@@ -2,6 +2,16 @@ let allMedicines = [];
 let editingMedicineId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const isCg = window.isCaregiver && window.isCaregiver();
+  if (isCg) {
+    const addBtn = document.getElementById('add-medicine-header-btn');
+    if (addBtn) addBtn.style.display = 'none';
+    const badgeEl = document.getElementById('medicines-count-badge');
+    if (badgeEl) {
+      badgeEl.insertAdjacentHTML('afterend', '<span class="badge bg-info text-dark rounded-pill px-3 py-1 ms-2"><i class="fa-solid fa-user-shield me-1"></i>Caregiver Read-Only</span>');
+    }
+  }
+
   await fetchMedicines();
 
   document.getElementById('medicine-search')?.addEventListener('input', filterMedicines);
@@ -39,6 +49,7 @@ function filterMedicines() {
 function renderMedicines(medicines) {
   const container = document.getElementById('medicines-container');
   const countEl = document.getElementById('medicines-count-badge');
+  const isCg = window.isCaregiver && window.isCaregiver();
   if (countEl) countEl.innerText = `${medicines.length} Medicine${medicines.length === 1 ? '' : 's'}`;
   if (!container) return;
 
@@ -48,10 +59,12 @@ function renderMedicines(medicines) {
         <div class="p-4 bg-white rounded-3 border">
           <i class="fa-solid fa-pills fs-1 text-primary mb-3 opacity-50"></i>
           <h5>No medicines found</h5>
-          <p class="text-muted">Click below to add a new medication schedule.</p>
-          <button class="btn btn-primary-health btn-sm rounded-pill mt-2" data-bs-toggle="modal" data-bs-target="#medicineModal">
-            <i class="fa-solid fa-plus me-1"></i> Add New Medicine
-          </button>
+          <p class="text-muted">${isCg ? 'The monitored patient has no recorded medications at this time.' : 'Click below to add a new medication schedule.'}</p>
+          ${!isCg ? `
+            <button class="btn btn-primary-health btn-sm rounded-pill mt-2" data-bs-toggle="modal" data-bs-target="#medicineModal">
+              <i class="fa-solid fa-plus me-1"></i> Add New Medicine
+            </button>
+          ` : ''}
         </div>
       </div>
     `;
@@ -71,15 +84,21 @@ function renderMedicines(medicines) {
               <span class="badge bg-${statusColor} bg-opacity-10 text-${statusColor} rounded-pill px-2 py-1 mb-1 small">${med.status}</span>
               <h5 class="fw-bold mb-0 text-break">${med.medicineName}</h5>
             </div>
-            <div class="dropdown">
-              <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown">
-                <i class="fa-solid fa-ellipsis-vertical"></i>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li><button class="dropdown-item" onclick="openEditMedicineModal('${med._id}')"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Edit</button></li>
-                <li><button class="dropdown-item text-danger" onclick="deleteMedicine('${med._id}', '${med.medicineName}')"><i class="fa-solid fa-trash me-2"></i>Delete</button></li>
-              </ul>
-            </div>
+            ${!isCg ? `
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown">
+                  <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                  <li><button class="dropdown-item" onclick="openEditMedicineModal('${med._id}')"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Edit</button></li>
+                  <li><button class="dropdown-item text-danger" onclick="deleteMedicine('${med._id}', '${med.medicineName}')"><i class="fa-solid fa-trash me-2"></i>Delete</button></li>
+                </ul>
+              </div>
+            ` : `
+              <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill small px-2 py-1">
+                <i class="fa-solid fa-lock me-1"></i>Read-Only
+              </span>
+            `}
           </div>
 
           <div class="health-card-body flex-grow-1">
@@ -95,12 +114,14 @@ function renderMedicines(medicines) {
           </div>
 
           <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-between align-items-center">
-            <a href="reminders.html" class="btn btn-sm btn-outline-primary rounded-pill">
-              <i class="fa-regular fa-bell me-1"></i> Reminders
+            <a href="reminders.html" class="btn btn-sm btn-outline-primary rounded-pill ${isCg ? 'w-100 text-center' : ''}">
+              <i class="fa-regular fa-bell me-1"></i> ${isCg ? 'View Patient Reminders' : 'Reminders'}
             </a>
-            <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="openEditMedicineModal('${med._id}')">
-              <i class="fa-solid fa-pen me-1"></i> Edit
-            </button>
+            ${!isCg ? `
+              <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="openEditMedicineModal('${med._id}')">
+                <i class="fa-solid fa-pen me-1"></i> Edit
+              </button>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -121,6 +142,10 @@ function resetMedicineForm() {
 }
 
 function openEditMedicineModal(id) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot edit medicines.', 'warning');
+    return;
+  }
   const med = allMedicines.find(m => String(m._id) === String(id));
   if (!med) return;
 
@@ -142,6 +167,10 @@ function openEditMedicineModal(id) {
 
 async function handleMedicineFormSubmit(e) {
   e.preventDefault();
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot add or edit medicines.', 'warning');
+    return;
+  }
 
   const medicineName = document.getElementById('med-name').value.trim();
   const dosage = document.getElementById('med-dosage').value.trim();
@@ -179,6 +208,10 @@ async function handleMedicineFormSubmit(e) {
 }
 
 async function deleteMedicine(id, name) {
+  if (window.isCaregiver && window.isCaregiver()) {
+    showToast('Caregiver accounts are read-only and cannot delete medicines.', 'warning');
+    return;
+  }
   if (!confirm(`Delete "${name}"?`)) return;
   try {
     const res = await API.delete(`/medicines/${id}`);

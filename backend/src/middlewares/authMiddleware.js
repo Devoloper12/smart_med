@@ -64,14 +64,17 @@ const authorizeRoles = (...roles) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: `Forbidden: Access restricted to [${roles.join(', ')}] roles.`
+        message: `Access denied. Caregiver accounts are read-only monitoring accounts and cannot perform this action.`
       });
     }
     next();
   };
 };
 
+const restrictTo = authorizeRoles;
+
 module.exports = {
   authenticateToken,
-  authorizeRoles
+  authorizeRoles,
+  restrictTo
 };

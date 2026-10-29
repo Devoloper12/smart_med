@@ -123,6 +123,11 @@ function updateThemeIcon(isDark) {
   }
 }
 
+window.isCaregiver = function() {
+  const user = API.getUser();
+  return Boolean(user && user.role === 'caregiver');
+};
+
 function updateNavbarAuth() {
   const authNavContainer = document.getElementById('nav-auth-section');
   if (!authNavContainer) return;
@@ -131,23 +136,34 @@ function updateNavbarAuth() {
   const token = API.getToken();
 
   if (token && user) {
+    const isCg = user.role === 'caregiver';
+
     authNavContainer.innerHTML = `
       <div class="d-flex align-items-center gap-2 gap-sm-3 flex-wrap">
-        <a href="emergency.html" class="btn btn-sos-compact text-white">
-          <i class="fa-solid fa-truck-medical"></i> SOS
-        </a>
+        ${!isCg ? `
+          <a href="emergency.html" class="btn btn-sos-compact text-white" title="Trigger Emergency SOS">
+            <i class="fa-solid fa-truck-medical"></i> SOS
+          </a>
+        ` : `
+          <a href="emergency.html" class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center gap-1" title="View Patient SOS Alerts">
+            <i class="fa-solid fa-bell text-danger"></i>
+            <span class="d-none d-sm-inline">SOS Alerts</span>
+          </a>
+        `}
         <div class="dropdown">
           <button class="btn btn-outline-primary btn-sm dropdown-toggle rounded-pill px-2 px-sm-3 py-1 d-flex align-items-center gap-1 gap-sm-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-circle-user text-primary"></i>
+            <i class="fa-solid fa-circle-user ${isCg ? 'text-info' : 'text-primary'}"></i>
             <span class="fw-medium text-truncate" style="max-width: 110px;">${user.name || 'Account'}</span>
+            ${isCg ? '<span class="badge bg-info text-dark ms-1 py-0 px-1" style="font-size: 0.68rem;">Caregiver</span>' : ''}
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-            <li><h6 class="dropdown-header">Signed in as <strong>${user.email}</strong></h6></li>
+            <li><h6 class="dropdown-header">Signed in as <strong>${user.email}</strong> (${isCg ? 'Caregiver - Read Only' : 'Patient'})</h6></li>
             <li><a class="dropdown-item" href="dashboard.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>Medicines</a></li>
-            <li><a class="dropdown-item" href="reminders.html"><i class="fa-solid fa-bell me-2 text-warning"></i>Reminders</a></li>
-            <li><a class="dropdown-item" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-2 text-info"></i>Prescriptions</a></li>
-            <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-2 text-secondary"></i>Caregivers</a></li>
+            <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>${isCg ? 'Patient Medicines' : 'Medicines'}</a></li>
+            <li><a class="dropdown-item" href="reminders.html"><i class="fa-solid fa-bell me-2 text-warning"></i>${isCg ? 'Patient Reminders' : 'Reminders'}</a></li>
+            <li><a class="dropdown-item" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-2 text-info"></i>${isCg ? 'Patient Prescriptions' : 'Prescriptions'}</a></li>
+            <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-2 text-secondary"></i>${isCg ? 'Linked Patient' : 'Caregivers'}</a></li>
+            <li><a class="dropdown-item" href="emergency.html"><i class="fa-solid fa-truck-medical me-2 text-danger"></i>${isCg ? 'SOS Alert Monitor' : 'Emergency SOS'}</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" id="logout-btn"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button></li>
           </ul>
