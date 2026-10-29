@@ -17,16 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   // RBAC for Header Action Buttons on Dashboard
   const addMedBtn = document.getElementById('dashboard-add-med-btn');
   const quickSosBtn = document.getElementById('dashboard-sos-btn');
+  const headerActionsContainer = document.getElementById('dashboard-header-actions');
 
   if (isCg) {
-    // Caregivers CANNOT add medicines - hide the button
-    if (addMedBtn) addMedBtn.style.display = 'none';
-
-    // Replace SOS button with SOS Monitor link for caregivers
-    if (quickSosBtn) {
-      quickSosBtn.className = 'btn btn-outline-danger btn-sm rounded-pill px-3';
-      quickSosBtn.innerHTML = '<i class="fa-solid fa-truck-medical me-1"></i> SOS Monitor';
-      quickSosBtn.onclick = () => { window.location.href = 'emergency.html'; };
+    if (headerActionsContainer) {
+      headerActionsContainer.innerHTML = `
+        <a href="sos-notifications.html" class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
+          <i class="fa-solid fa-truck-medical text-danger"></i> SOS Notifications
+        </a>
+        <a href="patient-tracking.html" class="btn btn-primary-health btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
+          <i class="fa-solid fa-chart-line"></i> Patient Tracking
+        </a>
+        <a href="messages.html" class="btn btn-outline-success btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
+          <i class="fa-brands fa-whatsapp"></i> Contact Patient
+        </a>
+      `;
     }
   } else {
     if (quickSosBtn) quickSosBtn.addEventListener('click', triggerQuickEmergencySOS);
@@ -106,17 +111,78 @@ async function loadDashboardData() {
         bannerContainer.innerHTML = `
           <div>
             <i class="fa-solid fa-triangle-exclamation fs-4 me-2 text-danger"></i>
-            <strong>ACTIVE EMERGENCY SOS ALERT!</strong>
+            <strong>ACTIVE EMERGENCY SOS ALERT FROM PATIENT!</strong>
             <div class="small mt-1 text-danger-emphasis">${activeAlert.notes || 'Emergency assistance requested'} &bull; Location: ${activeAlert.location?.address || 'Current Location'}</div>
           </div>
           <div class="d-flex gap-2 mt-2 mt-sm-0">
-            <a href="emergency.html" class="btn btn-sm btn-danger rounded-pill px-3">Open SOS Responder</a>
+            <a href="sos-notifications.html" class="btn btn-sm btn-danger rounded-pill px-3">Open SOS Responder</a>
           </div>
         `;
       } else if (bannerContainer) {
         bannerContainer.remove();
       }
     } catch (e) {}
+
+    // If caregiver, inject Patient Health Summary spotlight card
+    if (isCg && data.monitoredPatient) {
+      const pat = data.monitoredPatient;
+      let spotlight = document.getElementById('caregiver-patient-spotlight');
+      if (!spotlight) {
+        spotlight = document.createElement('div');
+        spotlight.id = 'caregiver-patient-spotlight';
+        spotlight.className = 'health-card p-4 mb-4 border-primary shadow-sm';
+        const kpiRow = document.querySelector('.row.g-3.mb-4');
+        if (kpiRow && kpiRow.nextElementSibling) {
+          kpiRow.parentNode.insertBefore(spotlight, kpiRow.nextElementSibling);
+        }
+      }
+
+      const conditions = (pat.medicalConditions || []).length > 0
+        ? pat.medicalConditions.map(c => `<span class="badge bg-light text-dark border me-1">${c}</span>`).join('')
+        : '<span class="text-muted small">None recorded</span>';
+
+      spotlight.innerHTML = `
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+          <div class="d-flex align-items-start gap-3">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 58px; height: 58px;">
+              <i class="fa-solid fa-hospital-user fs-3"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h4 class="fw-bold mb-0 text-dark">${pat.name || 'Assigned Patient'}</h4>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1">
+                  <i class="fa-solid fa-circle-check me-1"></i> Patient Monitored
+                </span>
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">
+                  ${stats.adherenceRate}% Adherence
+                </span>
+              </div>
+              <div class="text-muted small mt-1">
+                <span class="me-3"><i class="fa-regular fa-envelope me-1 text-primary"></i>${pat.email || 'N/A'}</span>
+                <span class="me-3"><i class="fa-solid fa-droplet me-1 text-danger"></i>Blood: <strong>${pat.bloodGroup || 'O+'}</strong></span>
+                <span class="me-3"><i class="fa-regular fa-calendar me-1 text-primary"></i>Age: <strong>${pat.age || 30}</strong></span>
+                <span><i class="fa-solid fa-location-dot me-1 text-success"></i>Bangalore, India</span>
+              </div>
+              <div class="mt-2 small">
+                <strong class="text-secondary">Diagnosed Conditions:</strong> ${conditions}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="patient-tracking.html" class="btn btn-sm btn-primary-health rounded-pill px-3">
+              <i class="fa-solid fa-chart-line me-1"></i> Tracking Detail
+            </a>
+            <a href="messages.html" class="btn btn-sm btn-outline-success rounded-pill px-3">
+              <i class="fa-brands fa-whatsapp me-1"></i> Send Check-In
+            </a>
+            <a href="reports.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+              <i class="fa-solid fa-file-medical me-1"></i> View Report
+            </a>
+          </div>
+        </div>
+      `;
+    }
   } catch (err) {
     console.error('Dashboard load error:', err);
   }

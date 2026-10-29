@@ -9,6 +9,7 @@ class FallbackStore {
     this.reminders = [];
     this.prescriptions = [];
     this.emergencyAlerts = [];
+    this.messages = [];
 
     this.initDemoData();
   }

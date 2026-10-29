@@ -128,6 +128,62 @@ window.isCaregiver = function() {
   return Boolean(user && user.role === 'caregiver');
 };
 
+function updateDynamicNavbar() {
+  const navList = document.querySelector('.navbar-nav.me-auto');
+  if (!navList) return;
+
+  const user = API.getUser();
+  const token = API.getToken();
+  if (!token || !user) return;
+
+  const currentPath = window.location.pathname.toLowerCase();
+  const isCg = user.role === 'caregiver';
+
+  if (isCg) {
+    const items = [
+      { name: 'Dashboard', url: 'dashboard.html', icon: 'fa-gauge-high' },
+      { name: 'Patients', url: 'patients.html', icon: 'fa-users' },
+      { name: 'Patient Tracking', url: 'patient-tracking.html', icon: 'fa-chart-line' },
+      { name: 'Health Status', url: 'health-status.html', icon: 'fa-heart-pulse' },
+      { name: 'Alerts', url: 'alerts.html', icon: 'fa-bell' },
+      { name: 'SOS Notifications', url: 'sos-notifications.html', icon: 'fa-truck-medical text-danger' },
+      { name: 'Reports', url: 'reports.html', icon: 'fa-file-medical' },
+      { name: 'Messages', url: 'messages.html', icon: 'fa-comments' },
+      { name: 'Profile', url: 'profile.html', icon: 'fa-user-gear' }
+    ];
+
+    navList.innerHTML = items.map(item => {
+      const isActive = currentPath.endsWith(item.url.toLowerCase()) ? 'active' : '';
+      return `
+        <li class="nav-item">
+          <a class="nav-link ${isActive}" href="${item.url}">
+            <i class="fa-solid ${item.icon} me-1"></i> ${item.name}
+          </a>
+        </li>
+      `;
+    }).join('');
+  } else {
+    const items = [
+      { name: 'Dashboard', url: 'dashboard.html', icon: 'fa-gauge-high' },
+      { name: 'Medicines', url: 'medicines.html', icon: 'fa-pills' },
+      { name: 'Reminders', url: 'reminders.html', icon: 'fa-bell' },
+      { name: 'Prescriptions', url: 'prescriptions.html', icon: 'fa-file-prescription' },
+      { name: 'Caregivers', url: 'caregivers.html', icon: 'fa-hand-holding-heart' }
+    ];
+
+    navList.innerHTML = items.map(item => {
+      const isActive = currentPath.endsWith(item.url.toLowerCase()) ? 'active' : '';
+      return `
+        <li class="nav-item">
+          <a class="nav-link ${isActive}" href="${item.url}">
+            <i class="fa-solid ${item.icon} me-1"></i> ${item.name}
+          </a>
+        </li>
+      `;
+    }).join('');
+  }
+}
+
 function updateNavbarAuth() {
   const authNavContainer = document.getElementById('nav-auth-section');
   if (!authNavContainer) return;
@@ -145,9 +201,9 @@ function updateNavbarAuth() {
             <i class="fa-solid fa-truck-medical"></i> SOS
           </a>
         ` : `
-          <a href="emergency.html" class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center gap-1" title="View Patient SOS Alerts">
-            <i class="fa-solid fa-bell text-danger"></i>
-            <span class="d-none d-sm-inline">SOS Alerts</span>
+          <a href="sos-notifications.html" class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center gap-1" title="View Patient SOS Notifications">
+            <i class="fa-solid fa-truck-medical text-danger"></i>
+            <span class="d-none d-sm-inline">SOS Notifications</span>
           </a>
         `}
         <div class="dropdown">
@@ -156,14 +212,26 @@ function updateNavbarAuth() {
             <span class="fw-medium text-truncate" style="max-width: 110px;">${user.name || 'Account'}</span>
             ${isCg ? '<span class="badge bg-info text-dark ms-1 py-0 px-1" style="font-size: 0.68rem;">Caregiver</span>' : ''}
           </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-            <li><h6 class="dropdown-header">Signed in as <strong>${user.email}</strong> (${isCg ? 'Caregiver - Read Only' : 'Patient'})</h6></li>
-            <li><a class="dropdown-item" href="dashboard.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>${isCg ? 'Patient Medicines' : 'Medicines'}</a></li>
-            <li><a class="dropdown-item" href="reminders.html"><i class="fa-solid fa-bell me-2 text-warning"></i>${isCg ? 'Patient Reminders' : 'Reminders'}</a></li>
-            <li><a class="dropdown-item" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-2 text-info"></i>${isCg ? 'Patient Prescriptions' : 'Prescriptions'}</a></li>
-            <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-2 text-secondary"></i>${isCg ? 'Linked Patient' : 'Caregivers'}</a></li>
-            <li><a class="dropdown-item" href="emergency.html"><i class="fa-solid fa-truck-medical me-2 text-danger"></i>${isCg ? 'SOS Alert Monitor' : 'Emergency SOS'}</a></li>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 210px;">
+            <li><h6 class="dropdown-header">Signed in as <strong>${user.email}</strong><br><small class="text-muted fst-italic">Role: ${isCg ? 'Caregiver (Monitor-Only)' : 'Patient'}</small></h6></li>
+            ${isCg ? `
+              <li><a class="dropdown-item" href="dashboard.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="patients.html"><i class="fa-solid fa-users me-2 text-primary"></i>Patients</a></li>
+              <li><a class="dropdown-item" href="patient-tracking.html"><i class="fa-solid fa-chart-line me-2 text-success"></i>Patient Tracking</a></li>
+              <li><a class="dropdown-item" href="health-status.html"><i class="fa-solid fa-heart-pulse me-2 text-danger"></i>Health Status</a></li>
+              <li><a class="dropdown-item" href="alerts.html"><i class="fa-solid fa-bell me-2 text-warning"></i>Alerts</a></li>
+              <li><a class="dropdown-item" href="sos-notifications.html"><i class="fa-solid fa-truck-medical me-2 text-danger"></i>SOS Notifications</a></li>
+              <li><a class="dropdown-item" href="reports.html"><i class="fa-solid fa-file-medical me-2 text-info"></i>Reports</a></li>
+              <li><a class="dropdown-item" href="messages.html"><i class="fa-solid fa-comments me-2 text-secondary"></i>Messages</a></li>
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-dark"></i>Profile</a></li>
+            ` : `
+              <li><a class="dropdown-item" href="dashboard.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Dashboard</a></li>
+              <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>Medicines</a></li>
+              <li><a class="dropdown-item" href="reminders.html"><i class="fa-solid fa-bell me-2 text-warning"></i>Reminders</a></li>
+              <li><a class="dropdown-item" href="prescriptions.html"><i class="fa-solid fa-file-prescription me-2 text-info"></i>Prescriptions</a></li>
+              <li><a class="dropdown-item" href="caregivers.html"><i class="fa-solid fa-hand-holding-heart me-2 text-secondary"></i>Caregivers</a></li>
+              <li><a class="dropdown-item" href="emergency.html"><i class="fa-solid fa-truck-medical me-2 text-danger"></i>Emergency SOS</a></li>
+            `}
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" id="logout-btn"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button></li>
           </ul>
@@ -230,6 +298,7 @@ function startCaregiverAlertMonitor() {
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   requireAuth();
+  updateDynamicNavbar();
   updateNavbarAuth();
   startCaregiverAlertMonitor();
 });
