@@ -146,10 +146,7 @@ function updateDynamicNavbar() {
       { name: 'Patient Tracking', url: 'patient-tracking.html', icon: 'fa-chart-line' },
       { name: 'Health Status', url: 'health-status.html', icon: 'fa-heart-pulse' },
       { name: 'Alerts', url: 'alerts.html', icon: 'fa-bell' },
-      { name: 'SOS Notifications', url: 'sos-notifications.html', icon: 'fa-truck-medical text-danger' },
-      { name: 'Reports', url: 'reports.html', icon: 'fa-file-medical' },
-      { name: 'Messages', url: 'messages.html', icon: 'fa-comments' },
-      { name: 'Profile', url: 'profile.html', icon: 'fa-user-gear' }
+      { name: 'SOS Notifications', url: 'sos-notifications.html', icon: 'fa-truck-medical text-danger' }
     ];
 
     navList.innerHTML = items.map(item => {
@@ -221,9 +218,6 @@ function updateNavbarAuth() {
               <li><a class="dropdown-item" href="health-status.html"><i class="fa-solid fa-heart-pulse me-2 text-danger"></i>Health Status</a></li>
               <li><a class="dropdown-item" href="alerts.html"><i class="fa-solid fa-bell me-2 text-warning"></i>Alerts</a></li>
               <li><a class="dropdown-item" href="sos-notifications.html"><i class="fa-solid fa-truck-medical me-2 text-danger"></i>SOS Notifications</a></li>
-              <li><a class="dropdown-item" href="reports.html"><i class="fa-solid fa-file-medical me-2 text-info"></i>Reports</a></li>
-              <li><a class="dropdown-item" href="messages.html"><i class="fa-solid fa-comments me-2 text-secondary"></i>Messages</a></li>
-              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-user-gear me-2 text-dark"></i>Profile</a></li>
             ` : `
               <li><a class="dropdown-item" href="dashboard.html"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Dashboard</a></li>
               <li><a class="dropdown-item" href="medicines.html"><i class="fa-solid fa-pills me-2 text-success"></i>Medicines</a></li>

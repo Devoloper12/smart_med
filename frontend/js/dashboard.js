@@ -28,9 +28,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <a href="patient-tracking.html" class="btn btn-primary-health btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
           <i class="fa-solid fa-chart-line"></i> Patient Tracking
         </a>
-        <a href="messages.html" class="btn btn-outline-success btn-sm rounded-pill px-3 d-flex align-items-center gap-1">
-          <i class="fa-brands fa-whatsapp"></i> Contact Patient
-        </a>
       `;
     }
   } else {
@@ -171,13 +168,10 @@ async function loadDashboardData() {
 
           <div class="d-flex flex-wrap gap-2 align-items-center">
             <a href="patient-tracking.html" class="btn btn-sm btn-primary-health rounded-pill px-3">
-              <i class="fa-solid fa-chart-line me-1"></i> Tracking Detail
+              <i class="fa-solid fa-chart-line me-1"></i> Patient Tracking
             </a>
-            <a href="messages.html" class="btn btn-sm btn-outline-success rounded-pill px-3">
-              <i class="fa-brands fa-whatsapp me-1"></i> Send Check-In
-            </a>
-            <a href="reports.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-              <i class="fa-solid fa-file-medical me-1"></i> View Report
+            <a href="health-status.html" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+              <i class="fa-solid fa-heart-pulse me-1"></i> Health Status
             </a>
           </div>
         </div>

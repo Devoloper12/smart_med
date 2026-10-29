@@ -108,13 +108,10 @@ function renderPatients(patients) {
 
           <div class="card-footer bg-transparent border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <a href="patient-tracking.html?patientId=${p.patientId}" class="btn btn-sm btn-primary-health rounded-pill px-3">
-              <i class="fa-solid fa-chart-line me-1"></i> Tracking
+              <i class="fa-solid fa-chart-line me-1"></i> Patient Tracking
             </a>
-            <a href="messages.html?patientId=${p.patientId}&name=${encodeURIComponent(p.name)}" class="btn btn-sm btn-outline-success rounded-pill px-3">
-              <i class="fa-brands fa-whatsapp me-1"></i> Message
-            </a>
-            <a href="health-status.html?patientId=${p.patientId}" class="btn btn-sm btn-outline-secondary rounded-pill px-2" title="Health Status">
-              <i class="fa-solid fa-heart-pulse"></i>
+            <a href="health-status.html?patientId=${p.patientId}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+              <i class="fa-solid fa-heart-pulse me-1"></i> Health Status
             </a>
           </div>
         </div>

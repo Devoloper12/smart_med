@@ -193,14 +193,11 @@ async function loadPatientTrackingDetail(patientId) {
           </div>
 
           <div class="d-flex flex-wrap gap-2">
-            <a href="messages.html?patientId=${p.id}&name=${encodeURIComponent(p.name)}" class="btn btn-sm btn-outline-success rounded-pill px-3">
-              <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
+            <a href="sos-notifications.html" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+              <i class="fa-solid fa-truck-medical me-1"></i> SOS Notifications
             </a>
-            <a href="messages.html?patientId=${p.id}&mode=sms" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-              <i class="fa-solid fa-comment-sms me-1"></i> SMS Check-In
-            </a>
-            <a href="reports.html?patientId=${p.id}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-              <i class="fa-solid fa-file-medical me-1"></i> Full Report
+            <a href="health-status.html?patientId=${p.id}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+              <i class="fa-solid fa-heart-pulse me-1"></i> Health Status
             </a>
           </div>
         </div>
